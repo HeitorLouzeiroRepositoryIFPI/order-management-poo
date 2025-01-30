@@ -73,3 +73,8 @@ class Database:
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         return cursor.fetchall()
+
+    def close_connection(self):
+        """Fecha a conexão com o banco de dados."""
+        if hasattr(self, "conn") and self.conn:
+            self.conn.close()
