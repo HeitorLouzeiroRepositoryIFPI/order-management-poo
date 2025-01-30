@@ -167,40 +167,45 @@ elif st.session_state.menu == "Processar Pagamento":
 elif st.session_state.menu == "Gerenciar Entrega":
     st.subheader("Gestão de Entregas")
 
+    # Busca pedidos que estão PAGOS ou ENVIADOS
     pedidos = db.fetch_data("""
-        SELECT p.id, c.nome, p.valor_total 
+        SELECT p.id, c.nome, p.valor_total, p.status 
         FROM pedidos p
         JOIN clientes c ON p.cliente_id = c.id
-        WHERE p.status = 'Pago'
+        WHERE p.status IN ('Pago', 'Enviado')
     """)
 
     if pedidos:
         pedido_id = st.selectbox(
-            "Selecione o pedido para envio",
+            "Selecione o pedido",
             options=[p[0] for p in pedidos],
             format_func=lambda x: next(
-                f"Pedido #{p[0]} - {p[1]} (R${p[2]:.2f})" for p in pedidos if p[0] == x)
+                f"Pedido #{p[0]} - {p[1]} (Status: {p[3]})"
+                for p in pedidos if p[0] == x
+            )
         )
 
+        # Verifica status atual
+        status_pedido = next(p[3] for p in pedidos if p[0] == pedido_id)
+
         col1, col2 = st.columns(2)
+
         with col1:
-            if st.button("Iniciar Entrega"):
-                entrega = Entrega(pedido_id)
-                entrega.iniciar_entrega()
-                db.execute_query(
-                    "UPDATE pedidos SET status = 'Enviado' WHERE id = ?", (pedido_id,))
-                st.success("Entrega iniciada com sucesso!")
+            if status_pedido == "Pago":
+                codigo = st.text_input("Código de Rastreamento")
+                if st.button("Iniciar Entrega"):
+                    entrega = Entrega(pedido_id, codigo_rastreamento=codigo)
+                    entrega.iniciar_entrega()
+                    st.success("Entrega iniciada com sucesso!")
 
         with col2:
-            if st.button("Finalizar Entrega"):
-                entrega = Entrega(pedido_id)
-                entrega.finalizar_entrega()
-                db.execute_query(
-                    "UPDATE pedidos SET status = 'Entregue' WHERE id = ?", (pedido_id,))
-                st.success("Entrega finalizada com sucesso!")
+            if status_pedido == "Enviado":
+                if st.button("Finalizar Entrega"):
+                    entrega = Entrega(pedido_id)
+                    entrega.finalizar_entrega()
+                    st.success("Entrega finalizada com sucesso!")
     else:
-        st.info("Nenhum pedido pronto para envio.")
-
+        st.info("Nenhum pedido requer ação de entrega no momento.")
 # ------ Consultar Pedidos ------
 elif st.session_state.menu == "Consultar Pedidos":
     st.subheader("Consulta de Pedidos")

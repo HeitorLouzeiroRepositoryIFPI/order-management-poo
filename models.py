@@ -63,11 +63,37 @@ class Entrega:
         self.codigo_rastreamento = codigo_rastreamento
 
     def iniciar_entrega(self):
-        self.status = "Em Transporte"
-        query = "INSERT INTO entregas (pedido_id, status) VALUES (?, ?)"
-        self.id = db.execute_query(query, (self.pedido_id, self.status))
+        # Verifica se já existe registro de entrega
+        entrega_existente = db.fetch_data(
+            "SELECT id FROM entregas WHERE pedido_id = ?",
+            (self.pedido_id,)
+        )
+
+        if not entrega_existente:
+            query = """
+                INSERT INTO entregas (pedido_id, status, codigo_rastreamento)
+                VALUES (?, ?, ?)
+            """
+            self.id = db.execute_query(
+                query,
+                (self.pedido_id, "Em Transporte", self.codigo_rastreamento)
+            )
+        else:
+            query = "UPDATE entregas SET status = ? WHERE pedido_id = ?"
+            db.execute_query(query, ("Em Transporte", self.pedido_id))
+
+        # Atualiza status do pedido
+        db.execute_query(
+            "UPDATE pedidos SET status = 'Enviado' WHERE id = ?",
+            (self.pedido_id,)
+        )
 
     def finalizar_entrega(self):
-        self.status = "Entregue"
         query = "UPDATE entregas SET status = ? WHERE pedido_id = ?"
-        db.execute_query(query, (self.status, self.pedido_id))
+        db.execute_query(query, ("Entregue", self.pedido_id))
+
+        # Atualiza status do pedido
+        db.execute_query(
+            "UPDATE pedidos SET status = 'Entregue' WHERE id = ?",
+            (self.pedido_id,)
+        )
