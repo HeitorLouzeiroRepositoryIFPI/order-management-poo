@@ -13,8 +13,11 @@ class Produto:
         self.preco = preco
 
     def salvar(self):
+        if self.preco < 0:
+            raise ValueError("Preço do produto não pode ser negativo.")
         query = "INSERT INTO produtos (nome, preco) VALUES (?, ?)"
         self.id = db.execute_query(query, (self.nome, self.preco))
+        return self.id
 
 
 class Cliente:
@@ -26,6 +29,7 @@ class Cliente:
     def salvar(self):
         query = "INSERT INTO clientes (nome, endereco) VALUES (?, ?)"
         self.id = db.execute_query(query, (self.nome, self.endereco))
+        return self.id
 
 
 class Pedido:
@@ -36,9 +40,14 @@ class Pedido:
         self.valor_total = valor_total
 
     def salvar(self):
+        if not self.cliente_id:
+            raise ValueError("Pedido deve ter um cliente associado.")
+        if self.valor_total <= 0:
+            raise ValueError("Valor total do pedido deve ser maior que zero.")
         query = "INSERT INTO pedidos (cliente_id, status, valor_total) VALUES (?, ?, ?)"
         self.id = db.execute_query(
             query, (self.cliente_id, self.status, self.valor_total))
+        return self.id
 
 
 class Pagamento:

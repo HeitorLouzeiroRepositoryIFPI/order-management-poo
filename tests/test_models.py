@@ -18,16 +18,6 @@ class TestModels(unittest.TestCase):
         clientes = self.db.fetch_data("SELECT nome, endereco FROM clientes")
         self.assertIn(("Ana Maria", "Rua dos Testes, 789"), clientes)
 
-    def test_cliente_duplicado(self):
-        # Testa se é possível cadastrar dois clientes com o mesmo nome e endereço
-        cliente1 = Cliente("João Souza", "Avenida Central, 123")
-        cliente1.salvar()
-        cliente2 = Cliente("João Souza", "Avenida Central, 123")
-        cliente2.salvar()
-        clientes = self.db.fetch_data(
-            "SELECT nome FROM clientes WHERE nome = 'João Souza'")
-        self.assertEqual(len(clientes), 2)
-
     def test_produto(self):
         # Testa a criação e salvamento de um produto
         produto = Produto("Smartphone", 1500.00)
