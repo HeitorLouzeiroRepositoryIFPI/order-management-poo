@@ -167,43 +167,65 @@ elif st.session_state.menu == "Processar Pagamento":
 elif st.session_state.menu == "Gerenciar Entrega":
     st.subheader("Gestão de Entregas")
 
-    # Busca pedidos que estão PAGOS ou ENVIADOS
-    pedidos = db.fetch_data("""
-        SELECT p.id, c.nome, p.valor_total, p.status 
+    # Busca pedidos com informações de entrega
+    dados = db.fetch_data("""
+        SELECT 
+            p.id,
+            c.nome,
+            p.valor_total,
+            p.status,
+            e.codigo_rastreamento,
+            e.status as status_entrega
         FROM pedidos p
         JOIN clientes c ON p.cliente_id = c.id
+        LEFT JOIN entregas e ON p.id = e.pedido_id
         WHERE p.status IN ('Pago', 'Enviado')
+        ORDER BY p.id DESC
     """)
 
-    if pedidos:
-        pedido_id = st.selectbox(
-            "Selecione o pedido",
-            options=[p[0] for p in pedidos],
-            format_func=lambda x: next(
-                f"Pedido #{p[0]} - {p[1]} (Status: {p[3]})"
-                for p in pedidos if p[0] == x
-            )
-        )
-
-        # Verifica status atual
-        status_pedido = next(p[3] for p in pedidos if p[0] == pedido_id)
-
-        col1, col2 = st.columns(2)
-
+    if dados:
+        # Cria a tabela interativa
+        col1, col2, col3, col4, col5, col6 = st.columns([0.5, 2, 1, 1, 2, 1])
         with col1:
-            if status_pedido == "Pago":
-                codigo = st.text_input("Código de Rastreamento")
-                if st.button("Iniciar Entrega"):
-                    entrega = Entrega(pedido_id, codigo_rastreamento=codigo)
-                    entrega.iniciar_entrega()
-                    st.success("Entrega iniciada com sucesso!")
-
+            st.markdown("**Pedido ID**")
         with col2:
-            if status_pedido == "Enviado":
-                if st.button("Finalizar Entrega"):
-                    entrega = Entrega(pedido_id)
-                    entrega.finalizar_entrega()
-                    st.success("Entrega finalizada com sucesso!")
+            st.markdown("**Cliente**")
+        with col3:
+            st.markdown("**Valor**")
+        with col4:
+            st.markdown("**Status**")
+        with col5:
+            st.markdown("**Código Rastreio**")
+        with col6:
+            st.markdown("**Ações**")
+
+        for pedido in dados:
+            col1, col2, col3, col4, col5, col6 = st.columns(
+                [0.5, 2, 1, 1, 2, 1])
+
+            with col1:
+                st.write(f"#{pedido[0]}")
+            with col2:
+                st.write(pedido[1])
+            with col3:
+                st.write(f"R${pedido[2]:.2f}")
+            with col4:
+                st.write(pedido[3])
+            with col5:
+                st.write(pedido[4] or "Gerar ao enviar")
+
+            with col6:
+                if pedido[3] == "Pago":
+                    if st.button("🚚 Iniciar", key=f"iniciar_{pedido[0]}"):
+                        entrega = Entrega(pedido[0])
+                        entrega.iniciar_entrega()
+                        st.experimental_rerun()
+
+                elif pedido[3] == "Enviado":
+                    if st.button("✅ Finalizar", key=f"finalizar_{pedido[0]}"):
+                        entrega = Entrega(pedido[0])
+                        entrega.finalizar_entrega()
+                        st.experimental_rerun()
     else:
         st.info("Nenhum pedido requer ação de entrega no momento.")
 # ------ Consultar Pedidos ------
