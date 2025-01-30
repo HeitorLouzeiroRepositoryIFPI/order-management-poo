@@ -24,6 +24,10 @@ def show():
     )
 
     if st.button("Finalizar Pedido"):
+        if not produtos_selecionados:
+            st.error("Selecione pelo menos um produto.")
+            return
+
         valor_total = sum(p[2] for p in produtos_selecionados)
         pedido = Pedido(cliente_id, valor_total=valor_total)
         pedido.salvar()

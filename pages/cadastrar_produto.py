@@ -10,6 +10,9 @@ def show():
         preco = st.number_input("Preço unitário", min_value=0.0, format="%.2f")
 
         if st.form_submit_button("Salvar Produto"):
-            produto = Produto(nome, preco)
-            produto.salvar()
-            st.success("Produto cadastrado com sucesso!")
+            try:
+                produto = Produto(nome, preco)
+                produto.salvar()
+                st.success("Produto cadastrado com sucesso!")
+            except ValueError as e:
+                st.error(str(e))
