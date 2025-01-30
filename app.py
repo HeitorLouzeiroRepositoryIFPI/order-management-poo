@@ -219,13 +219,13 @@ elif st.session_state.menu == "Gerenciar Entrega":
                     if st.button("🚚 Iniciar", key=f"iniciar_{pedido[0]}"):
                         entrega = Entrega(pedido[0])
                         entrega.iniciar_entrega()
-                        st.experimental_rerun()
+                        st.rerun()
 
                 elif pedido[3] == "Enviado":
                     if st.button("✅ Finalizar", key=f"finalizar_{pedido[0]}"):
                         entrega = Entrega(pedido[0])
                         entrega.finalizar_entrega()
-                        st.experimental_rerun()
+                        st.rerun()
     else:
         st.info("Nenhum pedido requer ação de entrega no momento.")
 # ------ Consultar Pedidos ------
