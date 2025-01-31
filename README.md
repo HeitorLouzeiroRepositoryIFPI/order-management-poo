@@ -32,12 +32,12 @@
 <h3 align="center">Order management POO</h3>
 
   <p align="center">
-    
     <br/>
     <br />
     <a href="https://github.com/HeitorLouzeiroRepositoryIFPI/order-management-poo/issues">Report Bug</a>
     ·
     <a href="https://github.com/HeitorLouzeiroRepositoryIFPI/order-management-poo/issues">Request Feature</a>
+
   </p>
 </div>
 
@@ -203,13 +203,13 @@ Python, as long as it uses automated tests and good POO practices.
 <!-- ROADMAP -->
 ## Roadmap
 
-- [x]Register Customer Page.
-- [x]Register Product Page.
-- [x]Consult Order Page. 
-- [x]Create Order Page. 
-- [x]Manage Delivery Page. 
-- [x]Process Order Page. 
-- [x]Tests. 
+- [x] Register Customer Page.
+- [x] Register Product Page.
+- [x] Consult Order Page. 
+- [x] Create Order Page. 
+- [x] Manage Delivery Page. 
+- [x] Process Order Page. 
+- [x] Tests.
 
 
 See the [open issues](https://github.com/HeitorLouzeiroRepositoryIFPI/order-management-poo/issues) for a full list of proposed features (and known issues).
